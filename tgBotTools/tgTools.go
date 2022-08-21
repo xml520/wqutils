@@ -7,9 +7,9 @@ import (
 )
 
 type User struct {
-	TelegramID int64  // 电报id
-	Nickname   string // 昵称
-	Username   string // 用户名
+	TelegramID int64  `json:"telegram_id" gorm:"uniqueIndex"` // 电报id
+	Nickname   string `json:"nickname"`                       // 昵称
+	Username   string `json:"username" gorm:"uniqueIndex"`    // 用户名
 }
 type Msg struct {
 	ID   int
