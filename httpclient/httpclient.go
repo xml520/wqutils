@@ -285,7 +285,7 @@ func prepareTransport(options map[int]interface{}) (http.RoundTripper, error) {
 				return nil, err
 			}
 		} else {
-			fmt.Println(addr, timeout)
+			//fmt.Println(addr, timeout)
 			conn, err = net.Dial(network, addr)
 			if err != nil {
 				return nil, err
