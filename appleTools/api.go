@@ -41,9 +41,9 @@ func init() {
 }
 
 type Api struct {
-	IssuerID string `json:"issuerID" gorm:"index"`
-	ApiID    string `json:"apiID" gorm:"index"`
-	ApiKey   string `json:"apiKey" gorm:"type:text"`
+	IssuerID string `json:"issuerID" gorm:"index;comment:IssuerID"`
+	ApiID    string `json:"apiID" gorm:"index;comment:ApiID"`
+	ApiKey   string `json:"apiKey" gorm:"type:text;comment:ApiKey"`
 }
 
 func (a *Api) Do(method, url string, data any) (*httpclient.Response, error) {

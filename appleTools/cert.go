@@ -12,10 +12,10 @@ import (
 )
 
 type Cert struct {
-	CertID      string `json:"cert_id"`
-	CertContent string `json:"-" gorm:"type:text"`
-	P12Content  string `json:"-" gorm:"type:text"`
-	P12Password string `json:"p12_password"`
+	CertID      string `json:"cert_id" gorm:"comment:证书ID"`
+	CertContent string `json:"-" gorm:"type:text;comment:证书Base64"`
+	P12Content  string `json:"-" gorm:"type:text;comment:签名证书Base64"`
+	P12Password string `json:"p12_password;comment:签名证书密码"`
 }
 
 func (c *Cert) CreateCsr(email string) (csr string, pKey *rsa.PrivateKey) {
