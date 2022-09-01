@@ -13,8 +13,8 @@ import (
 
 type Cert struct {
 	CertID      string `json:"cert_id"`
-	CertContent string `json:"-"`
-	P12Content  string `json:"-"`
+	CertContent string `json:"-" gorm:"type:text"`
+	P12Content  string `json:"-" gorm:"type:text"`
 	P12Password string `json:"p12_password"`
 }
 

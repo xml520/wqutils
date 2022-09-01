@@ -53,7 +53,7 @@ func init() {
 }
 
 type Auth struct {
-	Account  string `json:"account"`
+	Account  string `json:"account" gorm:"uniqueIndex"`
 	Password string `json:"password"`
 	Web
 	proxy string

@@ -34,7 +34,7 @@ func init() {
 }
 
 type Web struct {
-	Cookie *string `json:"cookie"`
+	Cookie *string `json:"cookie" gorm:"type:text"`
 	AuthIP string  `json:"auth_ip"` // 选择ip
 }
 
