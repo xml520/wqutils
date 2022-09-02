@@ -5,28 +5,21 @@ package httpclient
 
 import (
 	"fmt"
-	"net/url"
+	"net/http"
 	"testing"
 )
 
 func TestDefaultClient(t *testing.T) {
-	for i, s := range ss([]string{"SS", "ssss"}) {
-		fmt.Println(i, s)
-	}
-	d := NewHttpClient()
-	res, err := d.Get("http://lumtest.com/myip.json")
-
+	newC := NewHttpClient().Defaults(map[interface{}]interface{}{
+		"Content-Type": "application/json",
+	})
+	res, err := newC.WithHeader("cookie", "v=1").WithCookie(&http.Cookie{Name: "t", Value: "121212"}).Post("http://127.0.0.1:12345/api/ping", nil)
 	if err != nil {
-		t.Error("get failed", err)
+		fmt.Println("请求失败")
 	}
-
-	if res.StatusCode != 200 {
-		t.Error("Status Code not 200")
-	}
-	u, _ := url.Parse("http://127.0.0.1")
-	u.User = url.UserPassword("121212112", "1212121")
-
-	fmt.Println(res.ToString(), u.String())
+	fmt.Println("请求头", res.Request.Header)
+	res, err = newC.Post("http://127.0.0.1:12345/api/ping", nil)
+	fmt.Println("请求头2", res.Request.Header)
 }
 func ss(s []string) []string {
 	fmt.Println("ok")

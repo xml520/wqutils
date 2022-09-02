@@ -103,6 +103,8 @@ func (a *Auth) SignIn() (session *AuthSession, err error) {
 			return
 		}
 	}
+
+	//res.Request.Header
 	a.setHttpCookie(res.Cookies())
 	return
 }
@@ -206,8 +208,11 @@ func (a *Auth) http() *httpclient.HttpClient {
 	if a.AuthIP != "" {
 		client = client.WithOption(httpclient.OPT_SELECT_IP, a.AuthIP)
 	}
+	//if a.Cookie != nil {
+	//	client = client.WithCookie(a.getHttpCookie()...)
+	//}
 	if a.Cookie != nil {
-		client = client.WithCookie(a.getHttpCookie()...)
+		client = client.WithHeader("Cookie", *a.Cookie)
 	}
 	return client
 }
