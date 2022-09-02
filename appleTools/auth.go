@@ -142,7 +142,7 @@ func (a *AuthSession) CheckCode(code string) error {
 
 // SendSMS 重新发送验证码
 func (a *AuthSession) SendSMS() error {
-	res, err := a.http().PutJson(authBaseUrl+"verify/phone", map[string]interface{}{
+	res, err := a.http().PutJson(authBaseUrl+"/verify/phone", map[string]interface{}{
 		"phoneNumber": map[string]int{"id": a.SelectMobile.ID},
 		"mode":        "sms",
 	})
@@ -162,7 +162,7 @@ func (a *AuthSession) trustCookie() error {
 	return nil
 }
 func (a *AuthSession) accept() error {
-	res, err := a.http().PostJson(authBaseUrl+"repair/complete", nil)
+	res, err := a.http().PostJson(authBaseUrl+"/repair/complete", nil)
 	if err != nil {
 		return fmt.Errorf("complete %s", err)
 	}
