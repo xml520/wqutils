@@ -46,8 +46,8 @@ const (
 
 func init() {
 	uploaderClient = httpclient.NewHttpClient().Defaults(map[interface{}]interface{}{
-		"Accept": jsonContentType,
-
+		"Accept":                 jsonContentType,
+		httpclient.OPT_COOKIEJAR: false,
 		httpclient.OPT_USERAGENT: uploadUserAgent + "/" + uploadVersion,
 		httpclient.OPT_AFTER_REQUEST_FUNC: func(res *httpclient.Response) error {
 			if res == nil {

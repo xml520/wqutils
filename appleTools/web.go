@@ -10,8 +10,9 @@ var webClient *httpclient.HttpClient
 
 func init() {
 	webClient = httpclient.NewHttpClient().Defaults(map[interface{}]interface{}{
-		"Accept-Language": language,
-		"Accept":          jsonContentType,
+		"Accept-Language":        language,
+		"Accept":                 jsonContentType,
+		httpclient.OPT_COOKIEJAR: false,
 		httpclient.OPT_AFTER_REQUEST_FUNC: func(res *httpclient.Response) error {
 			if res == nil {
 				return errors.New("请求错误")

@@ -24,9 +24,10 @@ var (
 
 func init() {
 	authClient = httpclient.NewHttpClient().Defaults(httpclient.Map{
-		"Accept-Language":    language,
-		"X-Apple-Widget-Key": appleAuthXAppleWidgetKeyAppStore,
-		"Accept":             jsonContentType,
+		"Accept-Language":        language,
+		"X-Apple-Widget-Key":     appleAuthXAppleWidgetKeyAppStore,
+		"Accept":                 jsonContentType,
+		httpclient.OPT_COOKIEJAR: false,
 		httpclient.OPT_AFTER_REQUEST_FUNC: func(res *httpclient.Response) error {
 			if res.StatusCode < 299 {
 				return nil
