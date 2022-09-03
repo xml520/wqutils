@@ -59,7 +59,7 @@ func (c *Cert) ToP12(priKey *rsa.PrivateKey, password string) (err error) {
 	if err != nil {
 		return errors.New("证书转换异常：" + err.Error())
 	}
-	c.P12Content = string(pfx)
+	c.P12Content = base64.StdEncoding.EncodeToString(pfx)
 	c.P12Password = password
 	return nil
 }
