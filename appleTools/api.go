@@ -10,6 +10,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/xml520/wqutils/httpclient"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -50,6 +51,9 @@ func (a *Api) Do(method, url string, data any) (*httpclient.Response, error) {
 	token, err := a.generateToken(tokenExpire)
 	if err != nil {
 		return nil, err
+	}
+	if strings.ToTitle(method) == "GET" {
+		data = ""
 	}
 	return apiClient.WithHeader("Authorization", "Bearer "+token).Json(method, apiBaseurl+url, data)
 }

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/xml520/wqutils/httpclient"
+	"strings"
 )
 
 var webClient *httpclient.HttpClient
@@ -49,7 +50,12 @@ func (w *Web) http() *httpclient.HttpClient {
 	}
 	return client
 }
-
+func (w *Web) Http() *httpclient.HttpClient {
+	return w.http()
+}
 func (w *Web) Do(method string, url string, data any) (*httpclient.Response, error) {
+	if strings.ToTitle(method) == "GET" {
+		data = ""
+	}
 	return w.http().Json(method, url, data)
 }
