@@ -58,7 +58,7 @@ func init() {
 			}
 			return nil
 		},
-		httpclient.OPT_TIMEOUT: 30,
+		httpclient.OPT_TIMEOUT: 300,
 	})
 	metaTemp, _ = template.New("").Parse(metaTmp)
 }
@@ -145,7 +145,6 @@ func (u *Uploader) Upload(appid, filename string) (err error) {
 	if err = u.step6uploadDoneWithArguments(mete); err != nil {
 		return fmt.Errorf("step5uploadDoneWithArguments :%s", err)
 	}
-	fmt.Println("新包名", mete.newPackageName)
 	return nil
 }
 func (u *Uploader) authSession() error {
@@ -188,7 +187,6 @@ func (u *Uploader) step1validateMeta(meta *IpaMete) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(res.ToString())
 
 	meta.newPackageName = res.ToJson("result.NewPackageName").String()
 	return err
@@ -215,7 +213,6 @@ func (u *Uploader) step2validateAssets(meta *IpaMete) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(res.ToString())
 
 	meta.newPackageName = res.ToJson("result.NewPackageName").String()
 	return err
@@ -257,7 +254,6 @@ func (u *Uploader) step4createReservationAndUploadFiles(meta *IpaMete) error {
 		return err
 	}
 	for _, item := range res.ToJson("result.Reservations").Array() {
-		fmt.Println("正在上传", item.Get("file").String())
 
 		switch item.Get("file").String() {
 		case "metadata.xml":
@@ -273,15 +269,12 @@ func (u *Uploader) step4createReservationAndUploadFiles(meta *IpaMete) error {
 				return fmt.Errorf("上传 ipa文件 失败 %s", err)
 			}
 		}
-		fmt.Println("上传完成", item.Get("file").String())
 	}
 	return err
 }
 func (u *Uploader) step5commitReservation(meta *IpaMete, at io.ReaderAt, result gjson.Result) error {
 	for _, item := range result.Get("operations").Array() {
-		fmt.Println("全部分片 ", len(result.Get("operations").Array()), " 当前上传 ", item.Get("partNumber").Int())
-		fmt.Println("url", item.Get("uri").String())
-		fmt.Println("Content-Type", item.Get("headers.Content-Type").String())
+
 		var data = make([]byte, item.Get("length").Int())
 		n, _ := at.ReadAt(data, item.Get("offset").Int())
 		res, err := httpclient.WithHeaders(map[string]string{
@@ -289,7 +282,6 @@ func (u *Uploader) step5commitReservation(meta *IpaMete, at io.ReaderAt, result 
 			"Content-Size": strconv.FormatInt(item.Get("length").Int(), 10),
 		}).Put(item.Get("uri").String(), bytes.NewBuffer(data[:n]))
 		if err != nil {
-			fmt.Println("error:", err)
 			return err
 		}
 		if res.StatusCode != 200 {
