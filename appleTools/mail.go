@@ -2,6 +2,7 @@ package appleTools
 
 import (
 	"errors"
+	"fmt"
 	"github.com/jhillyerd/enmime"
 	"github.com/xml520/go-smtp"
 	"io"
@@ -19,6 +20,12 @@ const (
 	verifyEmailSubject        = "验证您的 Apple ID 电子邮件地址"
 	verifyAppleIDSubject      = "Verify your Apple ID."
 )
+
+type BuildInfo struct {
+	AppID       int64
+	Version     string
+	VersionCode string
+}
 
 // EmailNoType 未匹配到类型
 type EmailNoType struct {
@@ -38,7 +45,7 @@ type EmailVerifyEmailType struct {
 
 // EmailBuildFailedType 构建失败类型
 type EmailBuildFailedType struct {
-	ID uint64 // appid
+	info *BuildInfo // appid
 	*MailContent
 }
 
@@ -174,13 +181,14 @@ func handleType(m *MailContent, hook MailHook) error {
 	case m.Subject == verifyAppleIDSubject:
 		hook.VerifyAppleID(&EmailVerifyAppleIDType{m})
 	case strings.Index(m.Subject, "has one or more issues") != -1:
-
-		appid, err := strconv.Atoi(m.MiddleStr("Apple ID: ", " Version"))
+		info, err := parserBuildInfo(m.Subject)
 		if err == nil {
 			hook.BuildFailed(&EmailBuildFailedType{
-				ID:          uint64(appid),
+				info:        info,
 				MailContent: m,
 			})
+		} else {
+			fmt.Println("无法解析错误信息")
 		}
 	case m.Subject == verifyEmailSubject:
 		var s, _ = regexp.Compile("[0-9]{6}")
@@ -191,4 +199,22 @@ func handleType(m *MailContent, hook MailHook) error {
 		//os.WriteFile("../tmp/tmp.html", []byte(m.ParserContent.Text), 0755)
 	}
 	return nil
+}
+
+func parserBuildInfo(str string) (*BuildInfo, error) {
+	reg, _ := regexp.Compile("Apple ID:\\s+(\\d{9,})\\s+Version:\\s+([\\d\\.]+)\\s+Build:\\s+([\\d\\.]+)")
+	res := reg.FindAllStringSubmatch(str, 1)
+	if len(res) != 1 || len(res[0]) != 4 {
+		return nil, errors.New("匹配失败")
+	} else {
+		r := res[0]
+		var err error
+		info := &BuildInfo{}
+		if info.AppID, err = strconv.ParseInt(r[1], 10, 64); err != nil {
+			return nil, errors.New("无法解析AppID")
+		}
+		info.Version = r[2]
+		info.VersionCode = r[3]
+		return info, nil
+	}
 }
