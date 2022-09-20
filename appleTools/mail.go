@@ -242,7 +242,6 @@ var bsReg, _ = regexp.Compile("(?s)Build Number:\\s+([\\d\\.]+)<br>[\n\r\\s]+Ver
 
 func parserBuildSuccessInfo(str *string) (*BuildInfo, error) {
 	res := bsReg.FindAllStringSubmatch(*str, 1)
-	fmt.Println(res)
 	if len(res) != 1 || len(res[0]) != 4 {
 		return nil, errors.New("匹配失败")
 	} else {
