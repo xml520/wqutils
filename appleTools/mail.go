@@ -49,6 +49,12 @@ type EmailBuildFailedType struct {
 	*MailContent
 }
 
+// EmailBuildSuccessType  构建成功类型
+type EmailBuildSuccessType struct {
+	Info *BuildInfo // appid
+	*MailContent
+}
+
 // EmailTeamInviteType  苹果团队邀请类型
 type EmailTeamInviteType struct {
 	Key string
@@ -76,6 +82,7 @@ type MailContent struct {
 type MailHook interface {
 	TestflightLink(*EmailTestflightLinkType)
 	BuildFailed(*EmailBuildFailedType)
+	BuildSuccess(*EmailBuildSuccessType)
 	VerifyEmail(*EmailVerifyEmailType)
 	VerifyAppleID(*EmailVerifyAppleIDType)
 	NoType(*EmailNoType)
@@ -166,6 +173,17 @@ func handleType(m *MailContent, hook MailHook) error {
 		return nil
 	}
 	switch {
+	case strings.Index(m.Subject, "has completed processing") != -1:
+		info, err := parserBuildSuccessInfo(&m.ParserContent.HTML)
+		if err == nil {
+			hook.BuildSuccess(&EmailBuildSuccessType{
+				Info:        info,
+				MailContent: m,
+			})
+		} else {
+			fmt.Println("无法解析构建上传成功信息")
+		}
+
 	case m.Subject == emailPrivateInviteSubject:
 		//fmt.Println("邀请链接", m.MiddleStr("activation_ds?key=", "\">Accept invitation<"))
 		hook.TeamInvite(&EmailTeamInviteType{
@@ -201,9 +219,10 @@ func handleType(m *MailContent, hook MailHook) error {
 	return nil
 }
 
+var bnRef, _ = regexp.Compile("Apple ID:\\s+(\\d{9,})\\s+Version:\\s+([\\d\\.]+)\\s+Build:\\s+([\\d\\.]+)")
+
 func parserBuildInfo(str string) (*BuildInfo, error) {
-	reg, _ := regexp.Compile("Apple ID:\\s+(\\d{9,})\\s+Version:\\s+([\\d\\.]+)\\s+Build:\\s+([\\d\\.]+)")
-	res := reg.FindAllStringSubmatch(str, 1)
+	res := bnRef.FindAllStringSubmatch(str, 1)
 	if len(res) != 1 || len(res[0]) != 4 {
 		return nil, errors.New("匹配失败")
 	} else {
@@ -215,6 +234,26 @@ func parserBuildInfo(str string) (*BuildInfo, error) {
 		}
 		info.Version = r[2]
 		info.VersionCode = r[3]
+		return info, nil
+	}
+}
+
+var bsReg, _ = regexp.Compile("(?s)Build Number:\\s+([\\d\\.]+)<br>[\n\r\\s]+Version Number:\\s+([\\d\\.]+)<br>.*?App Apple ID: (\\d{9,})<br>")
+
+func parserBuildSuccessInfo(str *string) (*BuildInfo, error) {
+	res := bsReg.FindAllStringSubmatch(*str, 1)
+	fmt.Println(res)
+	if len(res) != 1 || len(res[0]) != 4 {
+		return nil, errors.New("匹配失败")
+	} else {
+		r := res[0]
+		var err error
+		info := &BuildInfo{}
+		if info.AppID, err = strconv.ParseInt(r[3], 10, 64); err != nil {
+			return nil, errors.New("无法解析AppID")
+		}
+		info.Version = r[2]
+		info.VersionCode = r[1]
 		return info, nil
 	}
 }
