@@ -45,7 +45,7 @@ type EmailVerifyEmailType struct {
 
 // EmailBuildFailedType 构建失败类型
 type EmailBuildFailedType struct {
-	info *BuildInfo // appid
+	Info *BuildInfo // appid
 	*MailContent
 }
 
@@ -184,7 +184,7 @@ func handleType(m *MailContent, hook MailHook) error {
 		info, err := parserBuildInfo(m.Subject)
 		if err == nil {
 			hook.BuildFailed(&EmailBuildFailedType{
-				info:        info,
+				Info:        info,
 				MailContent: m,
 			})
 		} else {
