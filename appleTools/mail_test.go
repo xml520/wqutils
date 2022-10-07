@@ -38,7 +38,7 @@ func (t tt) TeamInvite(inviteType *EmailTeamInviteType) {
 }
 
 func TestName(t *testing.T) {
-	MailServerListen(":25", new(tt))
+	//MailServerListen(":25", new(tt))
 	//s := "c82cf33044f447ba81f52adc90722f9437a8b2ae42274e7884aa22e10752b59f61472c39"
 	//fmt.Println(strconv.ParseUint(s[len(s)-8:], 16, 0))
 	//s, _ := regexp.Compile("[0-9]{6}")

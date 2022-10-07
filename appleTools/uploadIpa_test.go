@@ -6,26 +6,28 @@ import (
 )
 
 func TestNewIpaUploader(t *testing.T) {
-
-	newAuth := &UploadAuth{
-		Account:  "1150383838@qq.com",
-		Password: "yqnm-vdzw-cawl-nrkw11",
-		Api: &Api{
-			IssuerID: "30dc12be-550f-4da3-8d41-c775ab6b5551",
-			ApiID:    "4GR84353K9",
-			ApiKey:   "LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JR1RBZ0VBTUJNR0J5cUdTTTQ5QWdFR0NDcUdTTTQ5QXdFSEJIa3dkd0lCQVFRZ1h5czlpTHFPeHB1S05FQW4KK0cwM2dEWlFRdVZMeE5VYUcwNHFkckNiQy9HZ0NnWUlLb1pJemowREFRZWhSQU5DQUFTYnZQRGpWRXRuS2lhbwpCdktBSjlaeHk1cTFLQTVpUjJyNHdqbVJWbHAvejlQOVdBT05RUkNzOTNQN0M5NElVYUl4NisydWZ4YlJwYTF0CldLNE5GWFRYCi0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0=",
-		},
-	}
-	//oldAuth := &UploadAuth{
-	//	Account:  "xirangyuedujl@163.com",
-	//	Password: "cigj-xuwv-rgeh-wwna",
-	//}
-	upload := NewIpaUploader(newAuth)
-	//upload.Upload()
-	err := upload.Upload("1600369627", "../ipaTools/test.ipa")
+	//uploaderClient.Do()
+	var header = make(map[string]string)
+	header["X-Session-Id"] = "COGrDBIQpb6qNeNLSgiidvaBYPSHWw=="
+	data := `{
+	"storefrontId": "143465-30,28",
+	"udid": "00008101-001119A42E1102AE",
+	"deviceName": "Ios",
+    "compressed":false
+}`
+	header["X-Request-Id"] = "CF72FE6F-D2C3-46DF-BF78-01DA451883E1"
+	//s := "CPHEsLwlEgQIChAAEgQIDBAAEgQIBBAAEgQIERAAEgQIAhAAEgQICRAAEgQIEhAAEgQIBxAAEgQIEBAAEgQIARAAEgQICxAAEgQIAxAAEgQIBRAAEgQIBhAAEgQIDxAAEgQICBAAEgQIDRAAEgQIDhAA"
+	url := "https://testflight.apple.com/v2/accounts/a83179c1-a9b1-495c-ab7c-d8a0b9aab671/apps/6443549069/builds/97536672/install"
+	header["X-Active-Devices"] = ""
+	//h := md5.New()
+	//io.WriteString(h, header["X-Session-Id"])
+	//io.WriteString(h, header["X-Request-Id"])
+	//fmt.Println(hex.EncodeToString(h.Sum(nil)))
+	header["User-Agent"] = "Oasis/2.6.0 OasisBuild/57 iOS/15.6.1 model/iPhone13,2 hwp/t8101 build/19G82 (6; dt:229)"
+	header["X-Session-Digest"] = "b082d5b09c46e0326cf4758fe134d5bb44bd8d6a"
+	res, err := uploaderClient.WithHeaders(header).Json("POST", url, data)
 	if err != nil {
-		fmt.Println("上传失败", err)
-	} else {
-		fmt.Println("上传成功", err)
+		fmt.Println(err, "失败", res.ToString(), res.StatusCode)
 	}
+	fmt.Println(header)
 }
