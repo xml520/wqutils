@@ -6,7 +6,7 @@ import (
 )
 
 func TestItunesLogin(t *testing.T) {
-	if data, err := ItunesLogin("luisalfonso.boffill@gmail.com", "Boffill@12"); err != nil {
+	if data, err := ItunesLogin("glenn.eisenberg@timken.com", "Glenn551061"); err != nil {
 		fmt.Println(err)
 	} else if m, err := data.GeyMoney(); err != nil {
 		fmt.Println(err)

@@ -21,8 +21,34 @@ const (
 	apiBaseurl  = "https://api.appstoreconnect.apple.com/v1/"
 )
 
-func init() {
-	apiClient = httpclient.NewHttpClient().Defaults(map[interface{}]interface{}{
+//func init() {
+//	apiClient = httpclient.NewHttpClient().Defaults(map[interface{}]interface{}{
+//		httpclient.OPT_COOKIEJAR: false,
+//		"Accept":                 jsonContentType,
+//		httpclient.OPT_AFTER_REQUEST_FUNC: func(res *httpclient.Response) error {
+//			if res == nil {
+//				return errors.New("请求错误")
+//			}
+//			if res.StatusCode < 299 {
+//				return nil
+//			}
+//			if msg := res.ToJson("errors.0.detail").String(); msg != "" {
+//				return errors.New(msg)
+//			}
+//			return errors.New(fmt.Sprintf("%s 未知错误 状态码：%v", res.Request.URL.String(), res.Status))
+//		},
+//		httpclient.OPT_TIMEOUT: 30,
+//	})
+//}
+
+type Api struct {
+	IssuerID string `json:"issuerID" gorm:"index;comment:IssuerID"`
+	ApiID    string `json:"apiID" gorm:"index;comment:ApiID"`
+	ApiKey   string `json:"apiKey" gorm:"type:text;comment:ApiKey"`
+}
+
+func newApiClient() *httpclient.HttpClient {
+	return httpclient.NewHttpClient().Defaults(map[interface{}]interface{}{
 		httpclient.OPT_COOKIEJAR: false,
 		"Accept":                 jsonContentType,
 		httpclient.OPT_AFTER_REQUEST_FUNC: func(res *httpclient.Response) error {
@@ -41,12 +67,6 @@ func init() {
 	})
 }
 
-type Api struct {
-	IssuerID string `json:"issuerID" gorm:"index;comment:IssuerID"`
-	ApiID    string `json:"apiID" gorm:"index;comment:ApiID"`
-	ApiKey   string `json:"apiKey" gorm:"type:text;comment:ApiKey"`
-}
-
 func (a *Api) Do(method, url string, data any) (*httpclient.Response, error) {
 	token, err := a.generateToken(tokenExpire)
 	if err != nil {
@@ -55,7 +75,7 @@ func (a *Api) Do(method, url string, data any) (*httpclient.Response, error) {
 	if strings.ToTitle(method) == "GET" {
 		data = ""
 	}
-	return apiClient.WithHeader("Authorization", "Bearer "+token).Json(method, apiBaseurl+url, data)
+	return newApiClient().WithHeader("Authorization", "Bearer "+token).Json(method, apiBaseurl+url, data)
 }
 
 func (a *Api) http() *httpclient.HttpClient {
@@ -63,7 +83,7 @@ func (a *Api) http() *httpclient.HttpClient {
 	if err != nil {
 		log.Println("token 生成失败", err)
 	}
-	return apiClient.WithHeader("Authorization", "Bearer "+token)
+	return newApiClient().WithHeader("Authorization", "Bearer "+token)
 }
 func (a *Api) generateToken(expire int64) (string, error) {
 	expires := time.Now().Unix() + expire // 19分钟有效期

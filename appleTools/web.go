@@ -9,8 +9,13 @@ import (
 
 var webClient *httpclient.HttpClient
 
-func init() {
-	webClient = httpclient.NewHttpClient().Defaults(map[interface{}]interface{}{
+type Web struct {
+	Cookie *string `json:"cookie" gorm:"type:text;comment:Cookie"`
+	AuthIP string  `json:"auth_ip" gorm:"comment:登录IP"` // 选择ip
+}
+
+func newWebClient() *httpclient.HttpClient {
+	return httpclient.NewHttpClient().Defaults(map[interface{}]interface{}{
 		"Accept-Language":        language,
 		"Accept":                 jsonContentType,
 		httpclient.OPT_COOKIEJAR: false,
@@ -34,14 +39,8 @@ func init() {
 		httpclient.OPT_TIMEOUT: 30,
 	})
 }
-
-type Web struct {
-	Cookie *string `json:"cookie" gorm:"type:text;comment:Cookie"`
-	AuthIP string  `json:"auth_ip" gorm:"comment:登录IP"` // 选择ip
-}
-
 func (w *Web) http() *httpclient.HttpClient {
-	var client = webClient
+	var client = newWebClient()
 	if w.AuthIP != "" {
 		client.WithOption(httpclient.OPT_SELECT_IP, w.AuthIP)
 	}

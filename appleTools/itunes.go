@@ -49,6 +49,7 @@ func ItunesLogin(email string, password string) (Itunes, error) {
 			return nil, err
 		}
 		if _, ok := s["cancel-purchase-batch"]; ok {
+			fmt.Println(s)
 			return nil, errors.New("登录失败")
 		}
 		return s, nil

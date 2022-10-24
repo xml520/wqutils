@@ -22,8 +22,57 @@ var (
 	AuthError503 = errors.New("您的登录太频繁，请稍等一分钟再试")
 )
 
-func init() {
-	authClient = httpclient.NewHttpClient().Defaults(httpclient.Map{
+//func init() {
+//	authClient = httpclient.NewHttpClient().Defaults(httpclient.Map{
+//		"Accept-Language":        language,
+//		"X-Apple-Widget-Key":     appleAuthXAppleWidgetKeyAppStore,
+//		"Accept":                 jsonContentType,
+//		httpclient.OPT_COOKIEJAR: false,
+//		httpclient.OPT_AFTER_REQUEST_FUNC: func(res *httpclient.Response) error {
+//			if res.StatusCode < 299 {
+//				return nil
+//			}
+//			switch res.StatusCode {
+//			case 409:
+//				return AuthError409
+//			case 412:
+//				return AuthError412
+//			case 503:
+//				return AuthError503
+//			default:
+//				if msg := res.ToJson("serviceErrors.0.message").String(); msg != "" {
+//					return errors.New(msg)
+//				}
+//				if msg := res.ToJson("errorMessage").String(); msg != "" {
+//					return errors.New(msg)
+//				}
+//				return errors.New(fmt.Sprintf("%s 未知错误 状态码：%v", res.Request.URL.String(), res.Status))
+//			}
+//		},
+//		httpclient.OPT_TIMEOUT: 30,
+//	})
+//}
+
+type Auth struct {
+	Account  string `json:"account" gorm:"uniqueIndex;comment:账号名"`
+	Password string `json:"password" gorm:"comment:密码"`
+	Web
+	proxy string
+}
+type AuthSession struct {
+	Auth         *Auth             `json:"auth"`
+	Header       map[string]string `json:"header"`
+	Mobiles      []*authMobile     `json:"mobiles"`
+	SelectMobile *authMobile       `json:"select_mobile"`
+}
+type authMobile struct {
+	ID     int    `json:"id"`
+	Mode   string `json:"mode"`
+	Mobile string `json:"mobile"`
+}
+
+func newAuthClient() *httpclient.HttpClient {
+	return httpclient.NewHttpClient().Defaults(httpclient.Map{
 		"Accept-Language":        language,
 		"X-Apple-Widget-Key":     appleAuthXAppleWidgetKeyAppStore,
 		"Accept":                 jsonContentType,
@@ -53,22 +102,8 @@ func init() {
 	})
 }
 
-type Auth struct {
-	Account  string `json:"account" gorm:"uniqueIndex;comment:账号名"`
-	Password string `json:"password" gorm:"comment:密码"`
-	Web
-	proxy string
-}
-type AuthSession struct {
-	Auth         *Auth             `json:"auth"`
-	Header       map[string]string `json:"header"`
-	Mobiles      []*authMobile     `json:"mobiles"`
-	SelectMobile *authMobile       `json:"select_mobile"`
-}
-type authMobile struct {
-	ID     int    `json:"id"`
-	Mode   string `json:"mode"`
-	Mobile string `json:"mobile"`
+func NewAuth(account string, password string) *Auth {
+	return &Auth{Account: account, Password: password}
 }
 
 // SetProxy 设置代理IP
@@ -202,7 +237,7 @@ func (a *Auth) getHttpCookie() (cs []*http.Cookie) {
 }
 
 func (a *Auth) http() *httpclient.HttpClient {
-	var client = authClient
+	var client = newAuthClient()
 	if a.proxy != "" {
 		client = client.WithOption(httpclient.OPT_PROXY, a.proxy)
 	}
