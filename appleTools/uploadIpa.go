@@ -45,7 +45,7 @@ const (
 )
 
 func init() {
-
+	uploaderClient = newUploaderClient()
 	metaTemp, _ = template.New("").Parse(metaTmp)
 }
 
@@ -77,24 +77,23 @@ type IpaMete struct {
 	newPackageName string
 }
 
-//
-//func newUploaderClient() *httpclient.HttpClient {
-//	return httpclient.NewHttpClient().Defaults(map[interface{}]interface{}{
-//		"Accept":                 jsonContentType,
-//		httpclient.OPT_COOKIEJAR: false,
-//		httpclient.OPT_USERAGENT: uploadUserAgent + "/" + uploadVersion,
-//		httpclient.OPT_AFTER_REQUEST_FUNC: func(res *httpclient.Response) error {
-//			if res == nil {
-//				return errors.New("请求错误")
-//			}
-//			if !res.ToJson("result.Success").Bool() {
-//				return errors.New(res.ToJson("result.Errors.0").String())
-//			}
-//			return nil
-//		},
-//		httpclient.OPT_TIMEOUT: 300,
-//	})
-//}
+func newUploaderClient() *httpclient.HttpClient {
+	return httpclient.NewHttpClient().Defaults(map[interface{}]interface{}{
+		"Accept":                 jsonContentType,
+		httpclient.OPT_COOKIEJAR: false,
+		httpclient.OPT_USERAGENT: uploadUserAgent + "/" + uploadVersion,
+		httpclient.OPT_AFTER_REQUEST_FUNC: func(res *httpclient.Response) error {
+			if res == nil {
+				return errors.New("请求错误")
+			}
+			if !res.ToJson("result.Success").Bool() {
+				return errors.New(res.ToJson("result.Errors.0").String())
+			}
+			return nil
+		},
+		httpclient.OPT_TIMEOUT: 300,
+	})
+}
 func (ipa *IpaMete) init() error {
 	f, err := os.Stat(ipa.FileName)
 	if err != nil {

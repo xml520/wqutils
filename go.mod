@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/ddliu/go-httpclient v0.6.9
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/go-basic/uuid v1.0.0
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.2-0.20220419141443-537c005643ad
 	github.com/jhillyerd/enmime v0.10.0
 	github.com/syyongx/php2go v0.9.7

@@ -42,7 +42,13 @@ func newWebClient() *httpclient.HttpClient {
 func (w *Web) http() *httpclient.HttpClient {
 	var client = newWebClient()
 	if w.AuthIP != "" {
-		client.WithOption(httpclient.OPT_SELECT_IP, w.AuthIP)
+
+		if strings.Index(w.AuthIP, "http") != -1 {
+			//fmt.Println(w.AuthIP)
+			client.WithOption(httpclient.OPT_PROXY, w.AuthIP)
+		} else {
+			client.WithOption(httpclient.OPT_SELECT_IP, w.AuthIP)
+		}
 	}
 	if w.Cookie != nil {
 		client.WithHeader("cookie", *w.Cookie)
@@ -51,6 +57,10 @@ func (w *Web) http() *httpclient.HttpClient {
 }
 func (w *Web) Http() *httpclient.HttpClient {
 	return w.http()
+}
+func (w *Web) SetWebIP(ip string) *Web {
+	w.AuthIP = ip
+	return w
 }
 func (w *Web) Do(method string, url string, data any) (*httpclient.Response, error) {
 	if strings.ToTitle(method) == "GET" {

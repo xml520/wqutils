@@ -11,8 +11,8 @@ github.com/emersion/go-sasl v0.0.0-20200509203442-7bfe0ed36a21 h1:OJyUGMJTzHTd1X
 github.com/emersion/go-sasl v0.0.0-20200509203442-7bfe0ed36a21/go.mod h1:iL2twTeMvZnrg54ZoPDNfJaJaqy0xIQFuBdrLsmspwQ=
 github.com/emersion/go-smtp v0.15.0 h1:3+hMGMGrqP/lqd7qoxZc1hTU8LY8gHV9RFGWlqSDmP8=
 github.com/emersion/go-smtp v0.15.0/go.mod h1:qm27SGYgoIPRot6ubfQ/GpiPy/g3PaZAVRxiO/sDUgQ=
-github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1 h1:wG8n/XJQ07TmjbITcGiUaOtXxdrINDz1b0J1w0SzqDc=
-github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1/go.mod h1:A2S0CWkNylc2phvKXWBBdD3K0iGnDBGbzRpISP2zBl8=
+github.com/go-basic/uuid v1.0.0 h1:Faqtetcr8uwOzR2qp8RSpkahQiv4+BnJhrpuXPOo63M=
+github.com/go-basic/uuid v1.0.0/go.mod h1:yVtVnsXcmaLc9F4Zw7hTV7R0+vtuQw00mdXi+F6tqco=
 github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.2-0.20220419141443-537c005643ad h1:b1sfRMBAEUWmBTmV2BLfw/BLolyFtLiqtBSwAEUtyyQ=
 github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.2-0.20220419141443-537c005643ad/go.mod h1:A2S0CWkNylc2phvKXWBBdD3K0iGnDBGbzRpISP2zBl8=
 github.com/go-test/deep v1.0.7 h1:/VSMRlnY/JSyqxQUzQLKVMAskpY/NZKFA5j2P+0pP2M=
