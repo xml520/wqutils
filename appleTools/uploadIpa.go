@@ -265,9 +265,15 @@ func (u *Uploader) step4createReservationAndUploadFiles(meta *IpaMete) error {
 			}
 		default:
 			f, err = os.Open(meta.FileName)
+			log.Println("正在上传", meta.FileName)
 			if err != nil {
 				return fmt.Errorf("无法读取文件 %s", err)
 			}
+			defer func() {
+				f.Close()
+				log.Println("上传完成", meta.FileName)
+			}()
+
 			if err = u.step5commitReservation(meta, f, item); err != nil {
 				return fmt.Errorf("上传 ipa文件 失败 %s", err)
 			}
