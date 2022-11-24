@@ -42,9 +42,9 @@ const (
 //}
 
 type Api struct {
-	IssuerID string `json:"issuerID" gorm:"index;comment:IssuerID"`
-	ApiID    string `json:"apiID" gorm:"index;comment:ApiID"`
-	ApiKey   string `json:"apiKey" gorm:"type:text;comment:ApiKey"`
+	IssuerID string `json:"issuer_id" gorm:"index;comment:IssuerID"`
+	ApiID    string `json:"api_id" gorm:"index;comment:ApiID"`
+	ApiKey   string `json:"api_key" gorm:"type:text;comment:ApiKey"`
 }
 
 func newApiClient() *httpclient.HttpClient {
