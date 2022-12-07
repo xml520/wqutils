@@ -20,6 +20,7 @@ type backendV2 struct {
 type MailHookV2 interface {
 	TeamInvite(*EmailTeamInviteType)
 	NoType(*EmailNoType)
+	BuildFailed(*EmailBuildFailedType)
 }
 
 func (bkd *backendV2) NewSession(_ *smtp.Conn) (smtp.Session, error) {
@@ -96,6 +97,16 @@ func handleTypeV2(m *MailContent, hook MailHookV2, debug bool) error {
 			Key:         m.MiddleStr("activation_ds?key=", "&provider"),
 			MailContent: m,
 		})
+	case strings.Index(m.Subject, "has one or more issues") != -1:
+		info, err := parserBuildInfo(m.Subject)
+		if err == nil {
+			hook.BuildFailed(&EmailBuildFailedType{
+				Info:        info,
+				MailContent: m,
+			})
+		} else {
+			log.Println("无法解析应用错误信息")
+		}
 	default:
 		hook.NoType(&EmailNoType{m})
 		if debug {

@@ -264,14 +264,13 @@ func (u *Uploader) step4createReservationAndUploadFiles(meta *IpaMete) error {
 				return fmt.Errorf("上传 metadata.xml 失败 %s", err)
 			}
 		default:
-			f, err = os.Open(meta.FileName)
-			log.Println("正在上传", meta.FileName)
+			f, err = os.OpenFile(meta.FileName, os.O_RDWR, 0755)
 			if err != nil {
 				return fmt.Errorf("无法读取文件 %s", err)
 			}
 			defer func() {
 				f.Close()
-				log.Println("上传完成", meta.FileName)
+
 			}()
 
 			if err = u.step5commitReservation(meta, f, item); err != nil {
@@ -283,7 +282,6 @@ func (u *Uploader) step4createReservationAndUploadFiles(meta *IpaMete) error {
 }
 func (u *Uploader) step5commitReservation(meta *IpaMete, at io.ReaderAt, result gjson.Result) error {
 	for _, item := range result.Get("operations").Array() {
-
 		var data = make([]byte, item.Get("length").Int())
 		n, _ := at.ReadAt(data, item.Get("offset").Int())
 		res, err := httpclient.WithHeaders(map[string]string{
