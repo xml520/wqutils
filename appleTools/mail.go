@@ -165,6 +165,7 @@ func MailServerListen(addr string, hook MailHook) error {
 }
 
 func handleType(m *MailContent, hook MailHook) error {
+
 	var key string
 	if key = m.MiddleStr("v1/invite/", "?ct="); key != "" {
 		l := &EmailTestflightLinkType{LinkKey: key, MailContent: m}

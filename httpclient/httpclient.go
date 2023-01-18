@@ -147,11 +147,11 @@ func (res *Response) ReadAll() ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
+		defer res.Body.Close()
 	default:
 		reader = res.Body
 	}
 	defer reader.Close()
-	defer res.Request.Body.Close()
 	res.body, err = ioutil.ReadAll(reader)
 	return res.body, err
 }

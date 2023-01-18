@@ -365,7 +365,6 @@ func (u *Uploader) do(method string, data any) (*httpclient.Response, error) {
 		header["x-session-digest"] = hex.EncodeToString(h.Sum(nil))
 		header["x-session-id"] = u.sessionId
 	}
-
 	return uploaderClient.WithHeaders(header).PostJson(uploadBaseUrl, string(jsonByte))
 }
 func (u *Uploader) authDo(method string, data any) (*httpclient.Response, error) {
