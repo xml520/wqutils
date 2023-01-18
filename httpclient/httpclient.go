@@ -147,7 +147,6 @@ func (res *Response) ReadAll() ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		defer res.Body.Close()
 	default:
 		reader = res.Body
 	}
