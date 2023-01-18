@@ -139,7 +139,7 @@ func (a *Auth) SignIn() (session *AuthSession, err error) {
 			return
 		}
 	}
-
+	defer res.Body.Close()
 	//res.Request.Header
 	a.setHttpCookie(res.Cookies())
 	return
@@ -174,6 +174,7 @@ func (a *AuthSession) CheckCode(code string) error {
 	if err != nil {
 		return err
 	}
+	defer res.Body.Close()
 	a.extractHeader(res)
 	return a.trustCookie()
 }
@@ -187,6 +188,7 @@ func (a *AuthSession) SendSMS() error {
 	if err != nil {
 		return err
 	}
+	defer res.Body.Close()
 	a.SelectMobile.Mode = "sms"
 	a.extractHeader(res)
 	return err
@@ -196,7 +198,9 @@ func (a *AuthSession) trustCookie() error {
 		return err
 	} else {
 		a.Auth.setHttpCookie(res.Cookies())
+		res.Body.Close()
 	}
+
 	return nil
 }
 func (a *AuthSession) accept() error {
@@ -205,6 +209,7 @@ func (a *AuthSession) accept() error {
 		return fmt.Errorf("complete %s", err)
 	}
 	a.Auth.setHttpCookie(res.Cookies())
+	defer res.Body.Close()
 	return nil
 }
 func (a *Auth) setHttpCookie(cs []*http.Cookie) {

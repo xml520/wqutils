@@ -151,6 +151,7 @@ func (res *Response) ReadAll() ([]byte, error) {
 		reader = res.Body
 	}
 	defer reader.Close()
+	defer res.Request.Body.Close()
 	res.body, err = ioutil.ReadAll(reader)
 	return res.body, err
 }
@@ -210,7 +211,9 @@ func prepareRequest(method string, url_ string, headers map[string]string,
 //
 // Handles timemout, proxy and maybe other transport related options here.
 func prepareTransport(options map[int]interface{}) (http.RoundTripper, error) {
-	transport := &http.Transport{}
+	transport := &http.Transport{
+		DisableKeepAlives: true,
+	}
 
 	var connectTimeout time.Duration
 
@@ -359,6 +362,7 @@ func prepareTransport(options map[int]interface{}) (http.RoundTripper, error) {
 			transport.TLSClientConfig = tls_config
 		}
 		tls_config.InsecureSkipVerify = unsafe_tls
+
 	}
 
 	return transport, nil

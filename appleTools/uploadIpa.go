@@ -190,6 +190,7 @@ func (u *Uploader) step1validateMeta(meta *IpaMete) error {
 	if err != nil {
 		return err
 	}
+	defer res.Response.Body.Close()
 
 	meta.newPackageName = res.ToJson("result.NewPackageName").String()
 	return err
@@ -216,14 +217,16 @@ func (u *Uploader) step2validateAssets(meta *IpaMete) error {
 	if err != nil {
 		return err
 	}
+	defer res.Response.Body.Close()
 
 	meta.newPackageName = res.ToJson("result.NewPackageName").String()
 	return err
 }
 func (u *Uploader) step3clientChecksumCompleted(meta *IpaMete) error {
-	_, err := u.do("clientChecksumCompleted", u.defineMap(map[string]any{
+	res, err := u.do("clientChecksumCompleted", u.defineMap(map[string]any{
 		"NewPackageName": meta.newPackageName,
 	}))
+	defer res.Response.Body.Close()
 	return err
 }
 func (u *Uploader) step4createReservationAndUploadFiles(meta *IpaMete) error {
@@ -268,11 +271,9 @@ func (u *Uploader) step4createReservationAndUploadFiles(meta *IpaMete) error {
 			if err != nil {
 				return fmt.Errorf("无法读取文件 %s", err)
 			}
-			defer func() {
-				f.Close()
-
-			}()
-
+			defer func(fi *os.File) {
+				fi.Close()
+			}(f)
 			if err = u.step5commitReservation(meta, f, item); err != nil {
 				return fmt.Errorf("上传 ipa文件 失败 %s", err)
 			}
@@ -295,14 +296,15 @@ func (u *Uploader) step5commitReservation(meta *IpaMete, at io.ReaderAt, result 
 			return fmt.Errorf("上传失败 状态码 %v", res.StatusCode)
 		}
 	}
-	_, err := u.do("commitReservation", u.defineMap(map[string]any{
+	res, err := u.do("commitReservation", u.defineMap(map[string]any{
 		"NewPackageName": meta.newPackageName,
 		"reservations":   []string{result.Get("id").String()},
 	}))
+	defer res.Response.Body.Close()
 	return err
 }
 func (u *Uploader) step6uploadDoneWithArguments(meta *IpaMete) error {
-	_, err := u.do("uploadDoneWithArguments", u.defineMap(map[string]any{
+	res, err := u.do("uploadDoneWithArguments", u.defineMap(map[string]any{
 		"NewPackageName": meta.newPackageName,
 		"FileSizeInfo": map[string]any{
 			"['" + meta.BaseName + "']": meta.FileSize,
@@ -323,9 +325,11 @@ func (u *Uploader) step6uploadDoneWithArguments(meta *IpaMete) error {
 		"TransferTime":           300,
 		"NumberBytesTransferred": meta.FileSize + int64(meta.metaBuf.Len()),
 	}))
+	defer res.Response.Body.Close()
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 func (u *Uploader) do(method string, data any) (*httpclient.Response, error) {
