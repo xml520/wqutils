@@ -16,7 +16,6 @@ const (
 )
 
 var (
-	authClient   *httpclient.HttpClient
 	AuthError409 = errors.New("需要双重验证")
 	AuthError412 = errors.New("未接受隐私协议")
 	AuthError503 = errors.New("您的登录太频繁，请稍等一分钟再试")
@@ -100,10 +99,6 @@ func newAuthClient() *httpclient.HttpClient {
 		},
 		httpclient.OPT_TIMEOUT: 30,
 	})
-}
-
-func NewAuth(account string, password string) *Auth {
-	return &Auth{Account: account, Password: password}
 }
 
 // SetProxy 设置代理IP
@@ -226,14 +221,14 @@ func (a *Auth) setHttpCookie(cs []*http.Cookie) {
 	for k, v := range _csMap {
 		_csStr += k + "=" + v + ";"
 	}
-	a.Cookie = &_csStr
+	a.Cookie = _csStr
 	return
 }
 func (a *Auth) getHttpCookie() (cs []*http.Cookie) {
-	if a.Cookie == nil {
+	if a.Cookie == "" {
 		return nil
 	}
-	for _, _c := range strings.Split(string(*a.Cookie), ";") {
+	for _, _c := range strings.Split(string(a.Cookie), ";") {
 		if _csArr := strings.SplitN(_c, "=", 2); len(_csArr) == 2 {
 			cs = append(cs, &http.Cookie{Name: _csArr[0], Value: _csArr[1]})
 		}
@@ -252,8 +247,8 @@ func (a *Auth) http() *httpclient.HttpClient {
 	//if a.Cookie != nil {
 	//	client = client.WithCookie(a.getHttpCookie()...)
 	//}
-	if a.Cookie != nil {
-		client = client.WithHeader("Cookie", *a.Cookie)
+	if a.Cookie != "" {
+		client = client.WithHeader("Cookie", a.Cookie)
 	}
 	return client
 }

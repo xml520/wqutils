@@ -7,11 +7,9 @@ import (
 	"strings"
 )
 
-var webClient *httpclient.HttpClient
-
 type Web struct {
-	Cookie *string `json:"cookie" gorm:"type:text;comment:Cookie"`
-	AuthIP string  `json:"auth_ip" gorm:"comment:登录IP"` // 选择ip
+	Cookie string `json:"cookie" gorm:"type:text;comment:Cookie"`
+	AuthIP string `json:"auth_ip" gorm:"comment:登录IP"` // 选择ip
 }
 
 func newWebClient() *httpclient.HttpClient {
@@ -50,8 +48,8 @@ func (w *Web) http() *httpclient.HttpClient {
 			client.WithOption(httpclient.OPT_SELECT_IP, w.AuthIP)
 		}
 	}
-	if w.Cookie != nil {
-		client.WithHeader("cookie", *w.Cookie)
+	if w.Cookie != "" {
+		client.WithHeader("cookie", w.Cookie)
 	}
 	return client
 }

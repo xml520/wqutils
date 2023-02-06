@@ -40,7 +40,7 @@ func RandString(n int) string {
 func TestWeb(t *testing.T) {
 	var c string
 	c = sss
-	var w = &Auth{Web: Web{Cookie: &c}}
+	var w = &Auth{Web: Web{Cookie: c}}
 	var l = make(chan int, 1)
 	var success int32
 	var errorCount int32
