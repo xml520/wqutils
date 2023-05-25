@@ -6,7 +6,6 @@ import (
 	"github.com/jhillyerd/enmime"
 	"github.com/xml520/go-smtp"
 	"io"
-	"log"
 	"regexp"
 	"strconv"
 	"strings"
@@ -61,6 +60,11 @@ type EmailTeamInviteType struct {
 	*MailContent
 }
 
+// Hook  接收到邮件
+type Hook struct {
+	*MailContent
+}
+
 // GetID 尝试获取开发者账号本地数据库ID 邀请人的名字格式必须为 id.$id.id
 func (e *EmailTeamInviteType) GetID() (int, error) {
 	idStr := e.MiddleStr("<p>Dear id.", ".id")
@@ -87,6 +91,7 @@ type MailHook interface {
 	VerifyAppleID(*EmailVerifyAppleIDType)
 	NoType(*EmailNoType)
 	TeamInvite(*EmailTeamInviteType)
+	Hook(hook *Hook)
 }
 
 // MiddleStr 取中间文本
@@ -121,14 +126,12 @@ func (s *session) AuthPlain(_, _ string) error {
 	return nil
 }
 func (s *session) Mail(from string, _ *smtp.MailOptions) error {
-	log.Println("Mail from:", from)
 	if strings.Index(from, appleDomain) == -1 {
 		return errors.New("no authorized")
 	}
 	return nil
 }
 func (s *session) Rcpt(to string) error {
-	log.Println("Rcpt to:", to)
 	s.To = to
 	return nil
 }
@@ -151,7 +154,6 @@ func (s *session) Logout() error {
 
 // MailServerListen 开启邮件服务
 func MailServerListen(addr string, hook MailHook) error {
-
 	s := smtp.NewServer(&backend{hook})
 	s.Addr = addr
 	s.Domain = "localhost"
@@ -160,12 +162,13 @@ func MailServerListen(addr string, hook MailHook) error {
 	s.MaxMessageBytes = 1024 * 1024
 	s.MaxRecipients = 50
 	s.AllowInsecureAuth = true
-	log.Println("绑定25端口", s.Addr)
 	return s.ListenAndServe()
 }
 
 func handleType(m *MailContent, hook MailHook) error {
-
+	go func() {
+		hook.Hook(&Hook{m})
+	}()
 	var key string
 	if key = m.MiddleStr("v1/invite/", "?ct="); key != "" {
 		l := &EmailTestflightLinkType{LinkKey: key, MailContent: m}
@@ -186,7 +189,6 @@ func handleType(m *MailContent, hook MailHook) error {
 		}
 
 	case m.Subject == emailPrivateInviteSubject:
-		//fmt.Println("邀请链接", m.MiddleStr("activation_ds?key=", "\">Accept invitation<"))
 		hook.TeamInvite(&EmailTeamInviteType{
 			Key:         m.MiddleStr("activation_ds?key=", "\">Accept invitation<"),
 			MailContent: m,
@@ -199,6 +201,7 @@ func handleType(m *MailContent, hook MailHook) error {
 		})
 	case m.Subject == verifyAppleIDSubject:
 		hook.VerifyAppleID(&EmailVerifyAppleIDType{m})
+
 	case strings.Index(m.Subject, "has one or more issues") != -1:
 		info, err := parserBuildInfo(m.Subject)
 		if err == nil {
@@ -215,7 +218,6 @@ func handleType(m *MailContent, hook MailHook) error {
 
 	default:
 		hook.NoType(&EmailNoType{m})
-		//os.WriteFile("../tmp/tmp.html", []byte(m.ParserContent.Text), 0755)
 	}
 	return nil
 }

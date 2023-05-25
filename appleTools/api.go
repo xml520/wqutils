@@ -77,7 +77,6 @@ func (a *Api) Do(method, url string, data any) (*httpclient.Response, error) {
 	}
 	return newApiClient().WithHeader("Authorization", "Bearer "+token).Json(method, apiBaseurl+url, data)
 }
-
 func (a *Api) http() *httpclient.HttpClient {
 	token, err := a.generateToken(tokenExpire)
 	if err != nil {
@@ -118,7 +117,6 @@ func (a *Api) generateToken(expire int64) (string, error) {
 				}
 			}
 		}
-
 	}
 	return token.SignedString(pk)
 }

@@ -195,7 +195,6 @@ func (a *AuthSession) trustCookie() error {
 		a.Auth.setHttpCookie(res.Cookies())
 		res.Body.Close()
 	}
-
 	return nil
 }
 func (a *AuthSession) accept() error {
