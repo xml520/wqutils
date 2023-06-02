@@ -381,7 +381,7 @@ func (u *Uploader) authDo(method string, data any) (*httpclient.Response, error)
 		}
 	}
 
-	return uploaderClient.WithHeaders(header).PostJson("https://contentdelivery.itunes.apple.com/WebObjects/MZLabelService.woa/json/MZITunesProducerService", map[string]any{
+	return uploaderClient.Begin().WithHeaders(header).PostJson("https://contentdelivery.itunes.apple.com/WebObjects/MZLabelService.woa/json/MZITunesProducerService", map[string]any{
 		"jsonrpc": "2.0",
 		"method":  method,
 		"id":      id,

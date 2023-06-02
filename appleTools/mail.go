@@ -187,7 +187,6 @@ func handleType(m *MailContent, hook MailHook) error {
 		} else {
 			fmt.Println("无法解析构建上传成功信息")
 		}
-
 	case m.Subject == emailPrivateInviteSubject:
 		hook.TeamInvite(&EmailTeamInviteType{
 			Key:         m.MiddleStr("activation_ds?key=", "\">Accept invitation<"),
@@ -215,7 +214,6 @@ func handleType(m *MailContent, hook MailHook) error {
 	case m.Subject == verifyEmailSubject:
 		var s, _ = regexp.Compile("[0-9]{6}")
 		hook.VerifyEmail(&EmailVerifyEmailType{Code: s.FindString(m.ParserContent.Text), MailContent: m})
-
 	default:
 		hook.NoType(&EmailNoType{m})
 	}

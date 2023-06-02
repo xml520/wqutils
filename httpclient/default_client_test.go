@@ -17,6 +17,7 @@ func TestDefaultClient(t *testing.T) {
 	if err != nil {
 		fmt.Println("请求失败")
 	}
+	newC.Begin()
 
 	fmt.Println("请求头", res.Request.Header, res.Cookies())
 	res, err = newC.Get("http://127.0.0.1:12345/api/ping", nil)
