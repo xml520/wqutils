@@ -1,9 +1,11 @@
 package appleTools
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"github.com/xml520/wqutils/httpclient"
+	"math/rand"
 	"net/http"
 	"strings"
 )
@@ -104,6 +106,63 @@ func newAuthClient() *httpclient.HttpClient {
 // SetProxy 设置代理IP
 func (a *Auth) SetProxy(u string) {
 	a.proxy = u
+}
+
+// SignInV2 登录
+func (a *Auth) SignInV2() (session *AuthSession, err error) {
+	var res *httpclient.Response
+	session = &AuthSession{Auth: a}
+	_initUrl := authBaseUrl + `/signin/init`
+	_initData := map[string]any{
+		"accountName": a.Account,
+		"a":           createA(),
+		"protocols":   []string{"s2k", "s2k_fo"},
+	}
+	res, err = session.http().PostJson(_initUrl, _initData)
+	if err != nil {
+		return
+	}
+
+	_url := authBaseUrl + `/signin/complete?isRememberMeEnabled=true`
+	_data := map[string]any{
+		"accountName": a.Account,
+		"password":    a.Password,
+		"rememberMe":  true,
+	}
+	res, err = session.http().PostJson(_url, _data)
+	if err != nil {
+		switch err {
+		case AuthError409:
+			session.extractHeader(res)
+			if err1 := session.extractMobile(); err1 != nil {
+				err = fmt.Errorf(err.Error()+" %s", err1)
+			}
+			return
+		case AuthError412:
+			session.extractHeader(res, "X-Apple-Repair-Session-Token")
+			if err = session.accept(); err != nil {
+				return
+			}
+		default:
+			return
+		}
+	}
+	defer res.Body.Close()
+	//res.Request.Header
+	a.setHttpCookie(res.Cookies())
+	return
+}
+
+func createA() string {
+	return base64.StdEncoding.EncodeToString([]byte(randStr(256)))
+}
+func randStr(length int) string {
+	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	b := make([]rune, length)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(b)
 }
 
 // SignIn 登录

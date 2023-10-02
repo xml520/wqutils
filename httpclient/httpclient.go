@@ -141,6 +141,7 @@ func (res *Response) ReadAll() ([]byte, error) {
 	}
 	var reader io.ReadCloser
 	var err error
+
 	switch res.Header.Get("Content-Encoding") {
 	case "gzip":
 		reader, err = gzip.NewReader(res.Body)
@@ -157,6 +158,11 @@ func (res *Response) ReadAll() ([]byte, error) {
 
 // Read response body into string.
 func (res *Response) ToString() string {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println("ToString", err)
+		}
+	}()
 	bytes, err := res.ReadAll()
 	if err != nil {
 		return ""
@@ -165,6 +171,11 @@ func (res *Response) ToString() string {
 }
 
 func (res *Response) ToJson(path string) gjson.Result {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println("ToString", err)
+		}
+	}()
 	bytes, err := res.ReadAll()
 	if err != nil {
 		return gjson.Result{}
