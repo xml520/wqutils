@@ -99,10 +99,12 @@ func handleTypeV2(m *MailContent, hook MailHookV2, debug bool) error {
 		})
 		//Action needed
 	case strings.Index(m.Subject, "has one or more issues") != -1 || strings.Index(m.Subject, "Action needed") != -1:
-		info, err := parserBuildInfo(m.Subject)
-		if err == nil {
+		name := m.MiddleStr("The uploaded build for ", " has one")
+
+		if name == "" {
+
 			hook.BuildFailed(&EmailBuildFailedType{
-				Info:        info,
+				Info:        &BuildInfo{Name: name},
 				MailContent: m,
 			})
 		} else {

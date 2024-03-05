@@ -21,6 +21,7 @@ const (
 )
 
 type BuildInfo struct {
+	Name        string
 	AppID       int64
 	Version     string
 	VersionCode string
@@ -223,6 +224,9 @@ func handleType(m *MailContent, hook MailHook) error {
 var bnRef, _ = regexp.Compile("Apple ID:\\s+(\\d{9,})\\s+Version:\\s+([\\d\\.]+)\\s+Build:\\s+([\\d\\.]+)")
 
 func parserBuildInfo(str string) (*BuildInfo, error) {
+	info := &BuildInfo{}
+	//The uploaded build for
+	return info, nil
 	res := bnRef.FindAllStringSubmatch(str, 1)
 	if len(res) != 1 || len(res[0]) != 4 {
 		return nil, errors.New("匹配失败")
