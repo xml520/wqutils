@@ -97,7 +97,8 @@ func handleTypeV2(m *MailContent, hook MailHookV2, debug bool) error {
 			Key:         m.MiddleStr("activation_ds?key=", "&provider"),
 			MailContent: m,
 		})
-	case strings.Index(m.Subject, "has one or more issues") != -1:
+		//Action needed
+	case strings.Index(m.Subject, "has one or more issues") != -1 || strings.Index(m.Subject, "Action needed") != -1:
 		info, err := parserBuildInfo(m.Subject)
 		if err == nil {
 			hook.BuildFailed(&EmailBuildFailedType{
